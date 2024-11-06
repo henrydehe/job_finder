@@ -1,0 +1,27 @@
+on:
+  workflow_dispatch:
+  # Run at 9:04am each day
+  schedule: [{cron: '4 9 * * *'}]
+
+name: scrape_un_jobs
+
+jobs:
+  scrape_un_jobs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: r-lib/actions/setup-r@v2
+      with:
+        use-public-rspm: true
+    - uses: r-lib/actions/setup-r-dependencies@v2
+
+    - name: Fetch latest jobs from unjobs.org
+      run: Rscript R/scrape_un_jobs.R
+
+    - uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: By action https://github.com/${{ env.GITHUB_REPOSITORY }}/actions/runs/${{ env.GITHUB_RUN_ID }}
