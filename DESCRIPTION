@@ -1,0 +1,9 @@
+Package: job_finder
+Title: Making it easier to find jobs in climate & public policy
+Version: 1.0
+Imports:
+  tidyverse,
+  gha,
+  nanoparquet,
+  rvest,
+Remotes: r-lib/gha, r-lib/nanoparquet
