@@ -92,7 +92,7 @@ get_un_jobs_full <- function(un_jobs_list){
 
   }
 
-  unjobs |>
+  un_jobs_list |>
     mutate(descriptor = pmap(list(url = link), get_job_desc)) |>
     unnest(descriptor) |>
     mutate(date_collected = Sys.Date())
@@ -103,7 +103,7 @@ scrape_un_jobs <- function(){
 
   un_jobs_list <- get_un_jobs_list()
 
-  already_scraped <- list.files("data/", full.names = T) |>
+  already_scraped <- list.files("data/un_jobs", full.names = T) |>
     map(read_parquet) |>
     bind_rows() |>
     select(id) |>
@@ -112,15 +112,23 @@ scrape_un_jobs <- function(){
   new_jobs <- un_jobs_list |>
     filter(!id %in% already_scraped)
 
-  gha_notice(str_glue("Scraping {nrow(new_jobs)} new jobs from unjobs.org on {Sys.Date}"))
+  if (nrow(new_jobs) >= 1) {
 
-  new_jobs |>
-    get_un_jobs_full()
+    gha_notice(str_glue("Scraping {nrow(new_jobs)} new jobs from unjobs.org on {Sys.Date()}"))
+    new_jobs |>
+      get_un_jobs_full()
+
+  } else {
+    gha_notice("No new jobs posted - skipping scrape_un_jobs process today")
+    return(new_jobs)
+  }
 
 }
 
 # Workflow --------------------------------------------------------------------
 
+date <- Sys.Date() |>
+  as.character()
 
 gha_notice(str_glue("Initiating scrape_un_jobs on {Sys.Date()}"))
 
