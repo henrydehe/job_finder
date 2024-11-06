@@ -118,7 +118,7 @@ scrape_un_jobs <- function(){
 
 if(!file.exists(str_glue("data/{Sys.Date()}.parquet"))) {
   scrape_un_jobs() |>
-    {\(x) if (nrow(x) >= 1) write_parquet(x, str_glue("data/{Sys.Date()}.parquet"))}
+    {\(x) if (nrow(x) >= 1) write_parquet(x, str_glue("data/un_jobs/{Sys.Date()}.parquet"))}
 }
 
 
