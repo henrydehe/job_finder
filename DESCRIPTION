@@ -6,4 +6,5 @@ Imports:
   gha,
   nanoparquet,
   rvest,
+  countrycode
 Remotes: r-lib/gha, r-lib/nanoparquet
