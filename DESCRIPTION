@@ -1,9 +1,0 @@
-Package: job_finder
-Title: Finding Jobs
-Version: 1.0
-Imports:
-  tidyverse,
-  gha,
-  nanoparquet,
-  rvest
-Remotes: r-lib/gha
