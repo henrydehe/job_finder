@@ -126,8 +126,6 @@ scrape_un_jobs <- function(){
 
 # Workflow --------------------------------------------------------------------
 
-date <- Sys.Date() |>
-  as.character()
 
 gha_notice(str_glue("Initiating scrape_un_jobs on {Sys.Date()}"))
 
