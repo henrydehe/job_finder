@@ -11,6 +11,7 @@
 library(rvest)
 library(tidyverse)
 library(nanoparquet)
+library(gha)
 
 
 # Functions for scraping latest jobs --------------------------------------
@@ -108,17 +109,23 @@ scrape_un_jobs <- function(){
     select(id) |>
     deframe()
 
-  un_jobs_list |>
-    filter(!id %in% already_scraped) |>
-    get_un_jobs_full()
+  new_jobs <- un_jobs_list |>
+    filter(!id %in% already_scraped)
+
+  gha_notice(str_glue("Scraping {nrow(new_jobs)} new jobs from unjobs.org on {Sys.Date}"))
 
 }
 
 # Workflow --------------------------------------------------------------------
 
+
+
 if(!file.exists(str_glue("data/{Sys.Date()}.parquet"))) {
   scrape_un_jobs() |>
     {\(x) if (nrow(x) >= 1) write_parquet(x, str_glue("data/un_jobs/{Sys.Date()}.parquet"))}
+  gha_notice("scrape_un_jobs Complete!")
+} else {
+  gha_warning("scrape_un_jobs already run today, delete data file to run again")
 }
 
 
