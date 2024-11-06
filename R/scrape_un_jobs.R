@@ -1,7 +1,6 @@
 # ***********************************************
 # Title       : Scraping UN Jobs.org
-# Description : Contains a series of functions using rvest to scrape job data
-#               from https://unjobs.org/
+# Description : Uses rvest to scrape job data from https://unjobs.org/
 # ***********************************************
 
 
