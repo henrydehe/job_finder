@@ -114,11 +114,15 @@ scrape_un_jobs <- function(){
 
   gha_notice(str_glue("Scraping {nrow(new_jobs)} new jobs from unjobs.org on {Sys.Date}"))
 
+  new_jobs |>
+    get_un_jobs_full()
+
 }
 
 # Workflow --------------------------------------------------------------------
 
 
+gha_notice(str_glue("Initiating scrape_un_jobs on {Sys.Date()}"))
 
 if(!file.exists(str_glue("data/{Sys.Date()}.parquet"))) {
   scrape_un_jobs() |>
