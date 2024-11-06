@@ -19,7 +19,7 @@ library(gha)
 get_un_jobs_list <- function(){
 
   # FUN: scrapes all jobs on a single page from unjobs.org
-  get_jobs_tbl <- function(url, pg_sleep = 0.05){
+  get_jobs_tbl <- function(url, pg_sleep = 0.01){
     Sys.sleep(pg_sleep)
     html_jobs <- read_html(url) |>
       html_elements(".job") |>
@@ -67,7 +67,7 @@ get_un_jobs_list <- function(){
 
 get_un_jobs_full <- function(un_jobs_list){
 
-  get_job_desc <- function(url, pg_sleep = 0.1) {
+  get_job_desc <- function(url, pg_sleep = 0.01) {
 
     Sys.sleep(pg_sleep)
 
