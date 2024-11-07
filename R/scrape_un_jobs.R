@@ -111,7 +111,7 @@ get_un_jobs_full <- function(un_jobs_list){
       html_text2() |>
       str_extract("(?<=[Cc]ountry:).+") |>
       str_trim() |>
-      countrycode::countrycode("country.name", "iso3c")
+      countrycode::countrycode("country.name", "iso3c", warn = F)
 
     location <- read_html(url) |>
       html_element("#cats") |>
