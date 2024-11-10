@@ -128,6 +128,8 @@ get_un_jobs_full <- function(un_jobs_list){
                           pause_cap = 10,
                           pause_min = 0.01,
                           max_times = 5)
+  # Note that given the blank table below unnest() will drop the row
+  # To preserve errors change the below such that it produces a row.
   otherwise <- tibble(country = character(),
                       location = character(),
                       job_desc = character())
