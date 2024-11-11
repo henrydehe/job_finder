@@ -1,7 +1,7 @@
 on:
   workflow_dispatch:
-  # Run at 9:04am each day
-  schedule: [{cron: '24 9 * * *'}]
+  # Run at 9:24am UTC on weekdays
+  schedule: [{cron: '24 9 * * 1-5'}]
 
 name: scrape_un_jobs
 
