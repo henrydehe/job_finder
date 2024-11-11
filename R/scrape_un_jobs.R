@@ -67,10 +67,7 @@ get_un_jobs_list <- function(){
 
   # Make the function reliable
   delay <- rate_delay(pause = 0.01)
-  backoff <- rate_backoff(pause_base = 0.02,
-                          pause_cap = 10,
-                          pause_min = 0.01,
-                          max_times = 5)
+  backoff <- rate_backoff(max_times = 5)
 
   get_jobs_tbl_reliably <- get_jobs_tbl |>
     reliably(delay = delay, backoff = backoff)
@@ -123,11 +120,9 @@ get_un_jobs_full <- function(un_jobs_list){
 
   }
 
+  # Parameters for making the function reliable
   delay <- rate_delay(pause = 0.01)
-  backoff <- rate_backoff(pause_base = 0.02,
-                          pause_cap = 10,
-                          pause_min = 0.01,
-                          max_times = 5)
+  backoff <- rate_backoff(max_times = 5)
   # Note that given the blank table below unnest() will drop the row
   # To preserve errors change the below such that it produces a row.
   otherwise <- tibble(country = character(),
