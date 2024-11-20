@@ -97,26 +97,74 @@ get_un_jobs_list <- function(){
 
 get_un_jobs_full <- function(un_jobs_list){
 
-  get_job_desc <- function(url) {
+  # FUN: gets all elements from a single job page on unjobs
+  get_job_page <- function(url) {
 
-    job_desc <- read_html(url) |>
-      html_element(".fp-snippet") |>
-      html_text2()
+    # FUN: gets description for job
+    job_desc <- function(job_page){
+      job_page |>
+        html_element(".fp-snippet") |>
+        html_text2()
+    }
+    job_desc <- job_desc |> possibly(otherwise = NA_character_)
 
-    country <- read_html(url) |>
-      html_element("#cats") |>
-      html_text2() |>
-      str_extract("(?<=[Cc]ountry:).+") |>
-      str_trim() |>
-      countrycode::countrycode("country.name", "iso3c", warn = F)
+    # FUN: gets country listed for job
+    job_country <- function(job_page){
+      job_page |>
+        html_element("#cats") |>
+        html_text2() |>
+        str_extract("(?<=[Cc]ountry:).+") |>
+        str_trim() |>
+        countrycode::countrycode("country.name", "iso3c", warn = F)
+    }
+    job_country <- job_country |> possibly(otherwise = NA_character_)
 
-    location <- read_html(url) |>
-      html_element("#cats") |>
-      html_text2() |>
-      str_extract("(?<=[Ff]ield [Ll]ocation:|[Cc]ity:).+") |>
-      str_trim()
+    # FUN: gets the city/location listed
+    job_location <- function(job_page){
+      job_page |>
+        html_element("#cats") |>
+        html_text2() |>
+        str_extract("(?<=[Ff]ield [Ll]ocation:|[Cc]ity:).+") |>
+        str_trim()
+    }
+    job_location <- job_location |> possibly(otherwise = NA_character_)
 
-    tibble(country, location, job_desc)
+    # FUN: gets the listed deadline
+    job_deadline <- function(job_page){
+      job_page |>
+        html_elements(xpath = "/html/body/script") |>
+        keep( ~ isTRUE(html_attr(., "type") == "text/javascript")) |>
+        html_text2() |>
+        keep( ~ str_detect(., "(?<=var e[:alnum:]{6}p[di] = )\\d+(?=;)")) |>
+        pluck(1) |>
+        str_extract_all("(?<=var e[:alnum:]{6}p[di] = )\\d+(?=;)") |>
+        list_c() |>
+        parse_number() |>
+        sum() |>
+        {\(x) x/1000}() |>
+        as_datetime(tz = "UTC") |>
+        {\(x) if_else(x - now() > dmonths(10), NA_Date_, x)}()
+    }
+    job_deadline <- job_deadline |> possibly(otherwise = NA_Date_)
+
+    # FUN: gets listed keywords
+    job_keywords <- function(job_page){
+      job_page |>
+        html_elements(".md-chip-hover a") |>
+        html_text2() |>
+        str_replace_all(";", ",") |>
+        str_c(collapse = ";")
+    }
+    job_keywords <- job_keywords |> possibly(otherwise = NA_character_)
+
+
+    job_page <- read_html(url)
+
+    tibble("country" = job_country(job_page),
+           "location" = job_location(job_page),
+           "deadline" = job_deadline(job_page),
+           "source_keywords" = job_keywords(job_page),
+           "job_desc" = job_desc(job_page))
 
   }
 
@@ -129,11 +177,11 @@ get_un_jobs_full <- function(un_jobs_list){
                       location = character(),
                       job_desc = character())
 
-  get_job_desc_reliably <- get_job_desc |>
+  get_job_page_reliably <- get_job_page |>
     reliably(delay = delay, backoff = backoff, otherwise = otherwise)
 
   un_jobs_full <- un_jobs_list |>
-    mutate(descriptor = pmap(list(url = link), get_job_desc_reliably)) |>
+    mutate(descriptor = pmap(list(url = link), get_job_page_reliably)) |>
     unnest(descriptor) |>
     mutate(date_collected = Sys.Date())
 
